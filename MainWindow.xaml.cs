@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -62,25 +63,60 @@ namespace Calculadora
 
         private void MainWindow_TextInput(object sender, TextCompositionEventArgs e)
         {
-            SetResultadoLabel(int.Parse(e.Text));
-            //SetResultadoLabel(int.TryParse((e.Text) out var valor));
+            if (int.TryParse(e.Text, out int number))
+            {
+                SetResultadoLabel(number);
+            }
+            else if (e.Text == "+")
+            {
+                Operacoes(maisBoton);
+            }
+            else if (e.Text == "-")
+            {
+                Operacoes(menosBoton);
+            }
+            else if (e.Text == "*")
+            {
+                Operacoes(multiplicacaoBoton);
+            }
+            else if (e.Text == "/")
+            {
+                Operacoes(divisionBoton);
+            }else if (e.Text == ",")
+            {
+                Ponto();
+            }
+            else if (e.Text == "=")
+            {
+                Resultado();
+            }
         }
 
         private void PontoBoton_Click(object sender, RoutedEventArgs e)
         {
+            Ponto();
+        }
+
+        private void Ponto()
+        {
+
             if (!resultadoLabel.ToString().Contains(","))
             {
-                resultadoLabel.Content = $"{resultadoLabel},";
+                resultadoLabel.Content = $"{resultadoLabel.Content},";
             }
-            
         }
-        // melhorar a a função para implementar os atalhos das teclas
+
         private void IgualBoton_Click(object sender, RoutedEventArgs e)
+        {
+            Resultado();
+        }
+
+        private void Resultado()
         {
             double numeroNovo;
             if (double.TryParse(resultadoLabel.Content.ToString(), out numeroNovo))
             {
-                switch(operacaoSelecionada)
+                switch (operacaoSelecionada)
                 {
                     case OperacaoSelecionada.Soma:
                         resultado = Calcular.Soma(numeroAnterior, numeroNovo);
@@ -101,16 +137,21 @@ namespace Calculadora
 
         private void OperacaoBoton_Click(object sender, RoutedEventArgs e)
         {
+            Operacoes(sender as Button);
+        }
+
+        private void Operacoes(Button operador)
+        {
             //Com isso retorno o valor exibido para 0 e salvo meu valor anterior na variável numeroAnterior
             if (double.TryParse(resultadoLabel.Content.ToString(), out numeroAnterior))
             {
                 resultadoLabel.Content = "0";
             }
             //Selecionar a operação de entrada
-            operacaoSelecionada = sender == multiplicacaoBoton ? OperacaoSelecionada.Multiplicacao : operacaoSelecionada;
-            operacaoSelecionada = sender == divisionBoton ? OperacaoSelecionada.Divisao: operacaoSelecionada;
-            operacaoSelecionada = sender == menosBoton ? OperacaoSelecionada.Subtracao : operacaoSelecionada;
-            operacaoSelecionada = sender == maisBoton ? OperacaoSelecionada.Soma : operacaoSelecionada;
+            operacaoSelecionada = operador == multiplicacaoBoton? OperacaoSelecionada.Multiplicacao : operacaoSelecionada;
+            operacaoSelecionada = operador == divisionBoton ? OperacaoSelecionada.Divisao : operacaoSelecionada;
+            operacaoSelecionada = operador == menosBoton ? OperacaoSelecionada.Subtracao : operacaoSelecionada;
+            operacaoSelecionada = operador == maisBoton ? OperacaoSelecionada.Soma : operacaoSelecionada;
         }
 
         private void NumeroBoton_Click(object sender, RoutedEventArgs e)
@@ -143,7 +184,6 @@ namespace Calculadora
 
         private void AcBoton_Click(object sender, RoutedEventArgs e)
         {
-            //Exclua o resultado mostrado na tela
             resultadoLabel.Content = "0";
         }
     }
